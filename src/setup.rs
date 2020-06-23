@@ -18,7 +18,6 @@ fn setup(exam: Exam) -> (ExamProfile, MarkProfile) {
     }
     let exam_profile = ExamProfile {
 	total: 10,
-	seed: 123456789,
 	profile: eprofile
     };
     let mark_profile = MarkProfile {
@@ -29,8 +28,8 @@ fn setup(exam: Exam) -> (ExamProfile, MarkProfile) {
 
 pub fn create_profile(questions_file: &str) -> io::Result<()> {
     let s = fs::read_to_string(questions_file)?;
-    let exam: Exam = serde_json::from_str(&s).expect("The questions file is not in valid json format");
+    let exam: Exam = serde_json::from_str(&s).expect(&format!("File {} is not in valid json format", questions_file));
     let (exam_profile, mark_profile) = setup(exam);
-    fs::write(EXAM_PROFILE_JSON, serde_json::to_string(&exam_profile).expect("Failed to deserialize exam profile"))?;
-    fs::write(MARK_PROFILE_JSON, serde_json::to_string(&mark_profile).expect("Failed to deserialize mark profile"))
+    fs::write(EXAM_PROFILE_JSON, serde_json::to_string_pretty(&exam_profile).expect("Failed to deserialize exam profile"))?;
+    fs::write(MARK_PROFILE_JSON, serde_json::to_string_pretty(&mark_profile).expect("Failed to deserialize mark profile"))
 }
