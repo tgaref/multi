@@ -69,7 +69,7 @@ const ALL_QUESTIONS_TEX: &str = "ALL_QUESTIONS.tex";
 
 const TEST_PAPAERS_TEX: &str = "TEST_PAPERS.tex";
 
-const TEST_PAPERS_F: &str = "_testPapers_";
+const TEST_PAPERS_JSON: &str = "_testPapers.json";
 
 const ASSOC_F: &str = "_assocList_";
 
@@ -79,6 +79,6 @@ const CORRECT_ANS_F: &str = "_correctAns_";
 
 const RESULTS_CSV: &str = "RESULTS.csv";
 
-const LATEX_PREAMBLE: &str = "_latexPreamble_";
+const LATEX_PREAMBLE: &str = "_latexPreamble.tex";
 
 

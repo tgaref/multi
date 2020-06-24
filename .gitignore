@@ -4,3 +4,4 @@
 /example/
 /examProfile.json~
 /src/create.rs~
+*.json

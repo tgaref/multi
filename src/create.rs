@@ -12,7 +12,11 @@ pub fn create_papers(questions_file: &str) -> io::Result<()> {
     let exam_profile: ExamProfile = serde_json::from_str(&s).expect(&format!("File {} is not in valid json format", EXAM_PROFILE_JSON));
 
     let test_papers = build_test_papers(&exam, &exam_profile);
-    fs::write(TEST_PAPERS_F, serde_json::to_string_pretty(&test_papers).expect("Failed to deserialize test papers"))?;
+    fs::write(TEST_PAPERS_JSON, serde_json::to_string_pretty(&test_papers).expect("Failed to deserialize test papers"))?;
+    for paper in &test_papers {
+	println!("{:?}", correct_answers(paper));
+    }
+	    
     Ok(())
     
 }
@@ -61,4 +65,21 @@ fn build_paper(serial: usize,
 	chosen_questions.extend(pick(questions, n))
     }
     Paper { serial, questions: chosen_questions }
+}
+
+fn find_correct_answer(question: &Question) -> usize {
+    for (answer, i) in question.answers.iter().zip(1..) {
+	if answer.correct {
+	    return i
+	}
+    }
+    panic!("Question {:?} has no correct answer", question)
+}
+
+fn correct_answers(paper: &Paper) -> (usize, Vec<(usize, String)>) {
+    let mut correct_vec = Vec::new();
+    for question in &paper.questions {
+	correct_vec.push((find_correct_answer(question), question.group.clone()));
+    }
+    (paper.serial, correct_vec)
 }
