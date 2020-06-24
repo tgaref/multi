@@ -1,11 +1,12 @@
 use serde::{Serialize, Deserialize};
-use std::fs;
-use std::io;
+use std::fs::{self, OpenOptions, File};
+use std::io::{self, Write};
 use serde_json;
 
 pub mod setup;
 pub mod create;
 pub mod mark;
+pub mod latex;
 
 pub use setup::create_profile;
 pub use create::create_papers;
@@ -75,7 +76,7 @@ const ASSOC_F: &str = "_assocList_";
 
 const CORRECT_ANSWERS_CSV: &str = "CORRECT_ANSWERS.csv";
 
-const CORRECT_ANS_F: &str = "_correctAns_";
+const CORRECT_ANSWERS_JSON: &str = "_correctAnswers.json";
 
 const RESULTS_CSV: &str = "RESULTS.csv";
 

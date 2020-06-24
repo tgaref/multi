@@ -1,9 +1,9 @@
 use super::*;
-//use serde_json;
 use std::io;
 use std::collections::HashMap;
 use rand::thread_rng;
 use rand::seq::SliceRandom; 
+use csv::Writer;
 
 pub fn create_papers(questions_file: &str) -> io::Result<()> {
     let s = fs::read_to_string(questions_file)?;
@@ -13,12 +13,30 @@ pub fn create_papers(questions_file: &str) -> io::Result<()> {
 
     let test_papers = build_test_papers(&exam, &exam_profile);
     fs::write(TEST_PAPERS_JSON, serde_json::to_string_pretty(&test_papers).expect("Failed to deserialize test papers"))?;
+    let mut correct = HashMap::new();
     for paper in &test_papers {
-	println!("{:?}", correct_answers(paper));
+	correct.insert(paper.serial, correct_answers(paper));
     }
-	    
+    fs::write(CORRECT_ANSWERS_JSON, serde_json::to_string_pretty(&correct).expect("Failed to deserialize correct answers hash map"))?;
+    write_csv(&correct, CORRECT_ANSWERS_CSV);
+
+    latex::write_all_questions(&exam, ALL_QUESTIONS_TEX)?;
+    
     Ok(())
     
+}
+
+fn write_csv(correct: &HashMap<usize, Vec<(usize, String)>>, filename: &str) {
+    let mut wrt = Writer::from_path(filename).expect(&format!("Failed to open file {}", filename));
+    let mut ans: Vec<String>;
+    for (serial, vec) in correct {
+	ans = vec![serial.to_string()];
+	for (j,(i, _)) in vec.iter().enumerate() {
+	    ans.push(format!("{}: {}",j+1,i));
+	}
+	wrt.write_record(&ans).expect(&format!("Failed to write {} file", filename));
+    }
+    wrt.flush().expect(&format!("Failed to write {} file", filename));
 }
 
 fn build_test_papers(exam: &Exam, exam_profile: &ExamProfile) -> Vec<Paper> {
@@ -64,6 +82,8 @@ fn build_paper(serial: usize,
 	}
 	chosen_questions.extend(pick(questions, n))
     }
+    let rng = &mut thread_rng();
+    chosen_questions.shuffle(rng);
     Paper { serial, questions: chosen_questions }
 }
 
@@ -76,10 +96,10 @@ fn find_correct_answer(question: &Question) -> usize {
     panic!("Question {:?} has no correct answer", question)
 }
 
-fn correct_answers(paper: &Paper) -> (usize, Vec<(usize, String)>) {
+fn correct_answers(paper: &Paper) -> Vec<(usize, String)> {
     let mut correct_vec = Vec::new();
     for question in &paper.questions {
 	correct_vec.push((find_correct_answer(question), question.group.clone()));
     }
-    (paper.serial, correct_vec)
+    correct_vec
 }
