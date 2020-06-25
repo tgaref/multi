@@ -1,29 +1,37 @@
 use super::*;
-use std::io;
 use std::collections::HashMap;
 use rand::thread_rng;
 use rand::seq::SliceRandom; 
 use csv::Writer;
 
 pub fn create_papers(questions_file: &str) -> io::Result<()> {
+    // Read the exam and the exam profile into native structs
     let s = fs::read_to_string(questions_file)?;
     let exam: Exam = serde_json::from_str(&s).expect(&format!("File {} is not in valid json format", questions_file));
     let s = fs::read_to_string(EXAM_PROFILE_JSON)?;
     let exam_profile: ExamProfile = serde_json::from_str(&s).expect(&format!("File {} is not in valid json format", EXAM_PROFILE_JSON));
 
+    // Build the test papers
     let test_papers = build_test_papers(&exam, &exam_profile);
     fs::write(TEST_PAPERS_JSON, serde_json::to_string_pretty(&test_papers).expect("Failed to deserialize test papers"))?;
+
+    // Find the correct answers for the test papers
     let mut correct = HashMap::new();
     for paper in &test_papers {
 	correct.insert(paper.serial, correct_answers(paper));
     }
+
+    // Write the correct answers in a json file (for use in marking)
     fs::write(CORRECT_ANSWERS_JSON, serde_json::to_string_pretty(&correct).expect("Failed to deserialize correct answers hash map"))?;
+
+    // Write the correct answers in a csv file (for possible posting)
     write_csv(&correct, CORRECT_ANSWERS_CSV);
 
+    // Write latex files
     latex::write_all_questions(&exam, ALL_QUESTIONS_TEX)?;
+    latex::write_test_papers(&exam, &test_papers, &exam_profile, TEST_PAPERS_TEX)?;
     
-    Ok(())
-    
+    Ok(())    
 }
 
 fn write_csv(correct: &HashMap<usize, Vec<(usize, String)>>, filename: &str) {

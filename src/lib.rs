@@ -68,11 +68,11 @@ const MARK_PROFILE_JSON: &str = "markProfile.json";
 
 const ALL_QUESTIONS_TEX: &str = "ALL_QUESTIONS.tex";
 
-const TEST_PAPAERS_TEX: &str = "TEST_PAPERS.tex";
+const TEST_PAPERS_TEX: &str = "TEST_PAPERS.tex";
 
 const TEST_PAPERS_JSON: &str = "_testPapers.json";
 
-const ASSOC_F: &str = "_assocList_";
+//const ASSOC_F: &str = "_assocList_";
 
 const CORRECT_ANSWERS_CSV: &str = "CORRECT_ANSWERS.csv";
 
