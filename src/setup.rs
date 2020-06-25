@@ -11,19 +11,19 @@ fn setup(exam: Exam) -> (ExamProfile, MarkProfile) {
 	}
     }
     let mut eprofile = Vec::new();
-    let mut mprofile = Vec::new();
+    let mut mprofile = HashMap::new();
     for (group, num) in groups {
 	eprofile.push(ExamGroupProfile { group: group.clone(), num, save_space: false });
-	mprofile.push(MarkGroupProfile { group: group.clone(), correct_mark: 1.0, wrong_mark: -0.25 });
+	mprofile.insert(group.clone(), Marks{ correct_mark: 1.0, wrong_mark: -0.25 });
     }
     let exam_profile = ExamProfile {
 	total: 10,
 	profile: eprofile
     };
-    let mark_profile = MarkProfile {
-	profile: mprofile
-    };
-    (exam_profile, mark_profile)
+//    let mark_profile = MarkProfile {
+//	profile: mprofile
+//    };
+    (exam_profile, mprofile)
 }
 
 pub fn create_profile(questions_file: &str) -> io::Result<()> {

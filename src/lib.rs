@@ -1,6 +1,7 @@
 use serde::{Serialize, Deserialize};
 use std::fs::{self, OpenOptions, File};
 use std::io::{self, Write};
+use std::collections::HashMap;
 use serde_json;
 
 pub mod setup;
@@ -10,6 +11,7 @@ pub mod latex;
 
 pub use setup::create_profile;
 pub use create::create_papers;
+pub use mark::mark;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Answer {
@@ -44,23 +46,20 @@ pub struct ExamProfile {
     pub profile: Vec<ExamGroupProfile>
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct MarkGroupProfile {
-    pub group: String,
-    pub correct_mark: f64,
-    pub wrong_mark: f64
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct MarkProfile {
-    pub profile: Vec<MarkGroupProfile>
-}
-
+pub type MarkProfile = HashMap<String, Marks>;
+    
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Paper {
     serial: usize,
     questions: Vec<Question>
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Marks {
+    correct_mark: f64,
+    wrong_mark: f64
+}
+
 
 const EXAM_PROFILE_JSON: &str = "examProfile.json";
 
