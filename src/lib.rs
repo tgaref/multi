@@ -1,5 +1,6 @@
+extern crate serde;
 use serde::{Serialize, Deserialize};
-use std::fs::{self, OpenOptions, File};
+use std::fs::{self, OpenOptions};
 use std::io::{self, Write};
 use std::collections::HashMap;
 use serde_json;
@@ -46,7 +47,7 @@ pub struct ExamProfile {
     pub profile: Vec<ExamGroupProfile>
 }
 
-pub type MarkProfile = HashMap<String, Marks>;
+type MarkProfile = HashMap<String, Marks>;
     
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Paper {
@@ -70,8 +71,6 @@ const ALL_QUESTIONS_TEX: &str = "ALL_QUESTIONS.tex";
 const TEST_PAPERS_TEX: &str = "TEST_PAPERS.tex";
 
 const TEST_PAPERS_JSON: &str = "_testPapers.json";
-
-//const ASSOC_F: &str = "_assocList_";
 
 const CORRECT_ANSWERS_CSV: &str = "CORRECT_ANSWERS.csv";
 
