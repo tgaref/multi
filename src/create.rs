@@ -1,6 +1,7 @@
 use super::*;
 use rand::thread_rng;
-use rand::seq::SliceRandom; 
+use rand::seq::SliceRandom;
+use std::process::Command;
 
 pub fn create_papers<P>(questions_file: P) -> Result<()>
 where
@@ -36,6 +37,30 @@ where
     // Write latex files
     latex::write_all_questions(&exam, ALL_QUESTIONS_TEX)?;
     latex::write_test_papers(&exam, &test_papers, &exam_profile, TEST_PAPERS_TEX)?;
+
+    Command::new("xelatex")
+	.arg(ALL_QUESTIONS_TEX)
+	.output()
+	.expect(&format!("Failed to xelatex {} file", ALL_QUESTIONS_TEX));
+
+    Command::new("xelatex")
+	.arg(TEST_PAPERS_TEX)
+	.output()
+	.expect(&format!("Failed to xelatex {} file", TEST_PAPERS_TEX));
+
+    Command::new("xelatex")
+	.arg(TEST_PAPERS_TEX)
+	.output()
+	.expect(&format!("Failed to xelatex {} file", TEST_PAPERS_TEX));
+
+    fs::remove_file(Path::new(ALL_QUESTIONS_TEX).with_extension("aux"))
+	.expect("Failed to delete aux file");
+    fs::remove_file(Path::new(ALL_QUESTIONS_TEX).with_extension("log"))
+	.expect("Failed to delete log file");
+    fs::remove_file(Path::new(TEST_PAPERS_TEX).with_extension("aux"))
+	.expect("Failed to delete aux file");
+    fs::remove_file(Path::new(TEST_PAPERS_TEX).with_extension("log"))
+	.expect("Failed to delete aux file");
     
     Ok(())    
 }
