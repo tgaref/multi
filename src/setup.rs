@@ -1,5 +1,4 @@
-use crate::*;
-use std::collections::HashMap;
+use super::*;
 
 fn setup(exam: Exam) -> (ExamProfile, MarkProfile) {
     let mut groups = HashMap::new();
@@ -20,16 +19,20 @@ fn setup(exam: Exam) -> (ExamProfile, MarkProfile) {
 	total: 10,
 	profile: eprofile
     };
-//    let mark_profile = MarkProfile {
-//	profile: mprofile
-//    };
     (exam_profile, mprofile)
 }
 
-pub fn create_profile(questions_file: &str) -> io::Result<()> {
-    let s = fs::read_to_string(questions_file)?;
+pub fn create_profile<P>(questions_file: P) -> Result<()>
+where
+    P: AsRef<Path> + Display
+{
+    let filename = questions_file.as_ref();
+    let s = fs::read_to_string(filename).context(OpenFileErr { filename: filename.to_path_buf() })?;
     let exam: Exam = serde_json::from_str(&s).expect(&format!("File {} is not in valid json format", questions_file));
     let (exam_profile, mark_profile) = setup(exam);
-    fs::write(EXAM_PROFILE_JSON, serde_json::to_string_pretty(&exam_profile).expect("Failed to deserialize exam profile"))?;
+    fs::write(EXAM_PROFILE_JSON, serde_json::to_string_pretty(&exam_profile).expect("Failed to deserialize exam profile"))
+	.context(SaveFileErr { filename: PathBuf::from(EXAM_PROFILE_JSON) })?;
     fs::write(MARK_PROFILE_JSON, serde_json::to_string_pretty(&mark_profile).expect("Failed to deserialize mark profile"))
+	.context(SaveFileErr { filename: PathBuf::from(EXAM_PROFILE_JSON) })?;
+    Ok(())
 }

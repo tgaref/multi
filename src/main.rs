@@ -1,26 +1,28 @@
 extern crate multi;
-use multi::{Config, parse_arguments};
-use multi::create_profile;
-use multi::create_papers;
-use multi::mark;
-//use std::error::Error;
+use multi::{parse_arguments, create_papers, create_profile, mark};
+use multi::{Config};
 
 fn main() {
     let config = parse_arguments();
     run(config);    
 }
 
-
 fn run(config: Config) -> () {
     if config.cmd == "setup" {
-	create_profile(&config.filename)
-	    .expect("Problem in create profile");
+	match create_profile(&config.filename) {
+	    Ok(()) => (),
+	    Err(e) => eprintln!("A problem occurred during setup: {}", e)
+	}	    
     } else if config.cmd == "create" {
-	create_papers(&config.filename)
-	    .expect("Problem in create papers")
+	match create_papers(&config.filename) {
+	    Ok(()) => (),
+	    Err(e) => eprintln!("A problem occurred during exam create: {}", e)
+	}
     } else if config.cmd == "mark" {
-	mark(&config.filename)
-	    .expect("Problem in mark");
+	match mark(&config.filename) {
+	    Ok(()) => (),
+	    Err(e) => eprintln!("A problem occurred during exam mark: {}", e)
+	}
     } else {
 	println!("Run multi --help");
     }

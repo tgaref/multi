@@ -1,9 +1,18 @@
 extern crate serde;
 use serde::{Serialize, Deserialize};
-use std::fs::{self, OpenOptions};
-use std::io::{self, Write};
-use std::collections::HashMap;
 use serde_json;
+
+use std::fmt::Display;
+use std::fs::{self, OpenOptions};
+use std::io::{Write};
+use std::path::{Path, PathBuf};
+use std::collections::HashMap;
+
+extern crate csv;
+use csv::{Writer, ReaderBuilder};
+
+extern crate snafu;
+use snafu::{ensure, ResultExt, Snafu};
 
 pub mod command;
 pub mod setup;
@@ -15,6 +24,53 @@ pub use command::{Config, parse_arguments};
 pub use setup::create_profile;
 pub use create::create_papers;
 pub use mark::mark;
+
+// Error types
+
+pub type Result<T, E = Error> = std::result::Result<T, E>;
+
+#[derive(Debug, Snafu)]
+//#[snafu(visibility = "pub(crate)")]
+pub enum Error {
+    #[snafu(display("Could not open file {}: {}", filename.display(), source))]
+    OpenFileErr {
+        filename: PathBuf,
+        source: std::io::Error,
+    },
+    #[snafu(display("Could not save file {}: {}", filename.display(), source))]
+    SaveFileErr {
+        filename: PathBuf,
+        source: std::io::Error,
+    },
+    #[snafu(display("Could not open file {}: {}", filename.display(), source))]
+    CsvWriterErr {
+        filename: PathBuf,
+        source: csv::Error,
+    },
+    #[snafu(display("Could not open file {}: {}", filename.display(), source))]
+    CsvReaderErr {
+        filename: PathBuf,
+        source: csv::Error,
+    },
+    #[snafu(display("Could not deserialize csv file {}: {}", filename.display(), source))]
+    CsvDeserializeErr {
+        filename: PathBuf,
+        source: csv::Error,
+    },
+    #[snafu(display("Could not serialize csv file {}: {}", filename.display(), source))]
+    CsvSerializeErr {
+        filename: PathBuf,
+        source: csv::Error,
+    },
+
+    #[snafu(display("Number of answers of AM: {} in file {} is wrong", am, filename.display()))]
+    WrongNumberOfAnswers {
+	filename: PathBuf,
+	am: usize
+    }
+}
+
+// Structs for building an exam
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Answer {
@@ -62,7 +118,6 @@ struct Marks {
     correct_mark: f64,
     wrong_mark: f64
 }
-
 
 const EXAM_PROFILE_JSON: &str = "examProfile.json";
 

@@ -1,7 +1,4 @@
 use super::*;
-use csv::{Writer, ReaderBuilder};
-use std::error::Error;
-use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Row {
@@ -10,30 +7,38 @@ struct Row {
     answer: String
 }
  
-pub fn mark(given_answers_csv: &str) -> Result<(), Box<dyn Error>> {
+pub fn mark<P>(given_answers_csv: P) -> Result<()>
+where
+    P: AsRef<Path> + Display
+{
+    let filename = given_answers_csv.as_ref();
     let mut rdr = ReaderBuilder::new()
         .delimiter(b',')
-        .from_path(given_answers_csv)?;
+        .from_path(filename)
+	.context(CsvReaderErr { filename: filename.to_path_buf()})?;
 
-    let s = fs::read_to_string(CORRECT_ANSWERS_JSON)?;
+    let s = fs::read_to_string(CORRECT_ANSWERS_JSON)
+	.context(OpenFileErr {filename: PathBuf::from(CORRECT_ANSWERS_JSON)})?;
     
     // maps serial to (correct answer, group name)
     let correct_answers_map: HashMap<usize, Vec<(usize,String)>> = serde_json::from_str(&s)
 	.expect(&format!("File {} is not in valid json format", CORRECT_ANSWERS_JSON));
 
-    let marks_map: MarkProfile = serde_json::from_str(&fs::read_to_string(MARK_PROFILE_JSON)?)
+    let s = fs::read_to_string(MARK_PROFILE_JSON)
+	.context(OpenFileErr {filename: PathBuf::from(MARK_PROFILE_JSON)})?;
+    let marks_map: MarkProfile = serde_json::from_str(&s)
 	.expect(&format!("File {} is not in valid json format", CORRECT_ANSWERS_JSON));
 
     let mut wrt = Writer::from_path(RESULTS_CSV)
-	.expect(&format!("Failed to open file {}", RESULTS_CSV));
+	.context(CsvWriterErr { filename: PathBuf::from(RESULTS_CSV)})?;
+    
     for record in rdr.records() {
-	let mut record = record?;
+	let mut record = record.unwrap();
 	record.trim();
-	let row: Row = record.deserialize(None)?;
+	let row: Row = record.deserialize(None)
+	    .context(CsvDeserializeErr { filename: filename.to_path_buf() })?;
 	let correct = &correct_answers_map[&row.serial];
-	if row.answer.len() != marks_map.len() {
-	    panic!("Number of answers for AM: {} in file {} does not match number of questions", row.serial, given_answers_csv);
-	}
+	ensure!(row.answer.len() == marks_map.len(), WrongNumberOfAnswers {filename: filename.to_path_buf(), am: row.am});
 	let mut mark: f64 = 0.0;
 	let mut correct_string = String::new();
 	for (a, (b, grp)) in row.answer.chars().zip(correct) {
@@ -48,8 +53,10 @@ pub fn mark(given_answers_csv: &str) -> Result<(), Box<dyn Error>> {
 	    }
 	}
 	wrt.write_record(&[row.am.to_string(), row.serial.to_string(), correct_string, mark.to_string()])
-	    .expect(&format!("Failed to write {} file", RESULTS_CSV));
+	    .context(CsvWriterErr {filename: PathBuf::from(RESULTS_CSV)})?;
     }
-    wrt.flush().expect(&format!("Failed to write {} file", RESULTS_CSV));
+    wrt.flush()
+	.context(SaveFileErr {filename: PathBuf::from(RESULTS_CSV)})?;
+    
     Ok(())
 }
