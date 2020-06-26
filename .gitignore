@@ -5,3 +5,6 @@
 /examProfile.json~
 /src/create.rs~
 *.json
+/src/command.rs~
+/src/errors.rs~
+/src/latex.rs~
