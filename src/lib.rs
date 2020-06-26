@@ -5,11 +5,13 @@ use std::io::{self, Write};
 use std::collections::HashMap;
 use serde_json;
 
+pub mod command;
 pub mod setup;
 pub mod create;
 pub mod mark;
 pub mod latex;
 
+pub use command::{Config, parse_arguments};
 pub use setup::create_profile;
 pub use create::create_papers;
 pub use mark::mark;
