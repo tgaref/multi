@@ -19,11 +19,13 @@ pub mod setup;
 pub mod create;
 pub mod mark;
 pub mod latex;
+pub mod utilities;
 
 pub use command::{Config, parse_arguments};
 pub use setup::create_profile;
 pub use create::create_papers;
 pub use mark::mark;
+pub use utilities::backup;
 
 // Error types
 
@@ -67,7 +69,13 @@ pub enum Error {
     WrongNumberOfAnswers {
 	filename: PathBuf,
 	am: usize
-    }
+    },
+        #[snafu(display("Could not save file {}: {}", filename.display(), source))]
+    CopyFileErr {
+        filename: PathBuf,
+        source: std::io::Error,
+    },
+
 }
 
 // Structs for building an exam
@@ -127,7 +135,7 @@ const ALL_QUESTIONS_TEX: &str = "ALL_QUESTIONS.tex";
 
 const TEST_PAPERS_TEX: &str = "TEST_PAPERS.tex";
 
-const TEST_PAPERS_JSON: &str = "_testPapers.json";
+pub const TEST_PAPERS_JSON: &str = "_testPapers.json";
 
 const CORRECT_ANSWERS_CSV: &str = "CORRECT_ANSWERS.csv";
 
@@ -137,4 +145,4 @@ const RESULTS_CSV: &str = "RESULTS.csv";
 
 const LATEX_PREAMBLE: &str = "_latexPreamble.tex";
 
-
+const BACKUP_DIR: &str = "exam_backup";

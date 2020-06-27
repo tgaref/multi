@@ -49,6 +49,17 @@ pub fn parse_arguments<'a>() -> Config<'a> {
 			.index(1),
 		)		
 	)
+	.subcommand(
+	    SubCommand::with_name("backup")
+		.about("Backup exam files")
+		.arg(
+		    Arg::with_name("questions")
+			.help("Backup exam files")
+			.required(true)
+			.index(1),
+		)		
+	)
+
         .get_matches();
 
     match matches.subcommand() {
@@ -63,6 +74,10 @@ pub fn parse_arguments<'a>() -> Config<'a> {
 	("mark", Some(sub))   => {
 	    let filename = sub.value_of("answers").unwrap();
 	    Config::new("mark", filename.to_string())
+	},
+	("backup", Some(sub)) => {
+	    let filename = sub.value_of("questions").unwrap();
+	    Config::new("backup", filename.to_string())
 	},
 	_                => {
 	    Config::new("", "".to_string())
