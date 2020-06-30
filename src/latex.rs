@@ -15,11 +15,12 @@ where
 	}
     }
        
-    let mut file = OpenOptions::new()
+    let file = OpenOptions::new()
 	.write(true)
 	.create(true)
 	.open(filename)
 	.context( OpenFileErr { filename: filename.to_path_buf() })?;
+    let mut file = BufWriter::new(file);
 
     let preamble = fs::read(LATEX_PREAMBLE)
 	.context(OpenFileErr {filename: filename.to_path_buf()})?;
@@ -58,11 +59,12 @@ where
 	save_space_map.insert(group_prof.group.clone(), group_prof.save_space);
     }
 
-    let mut file = OpenOptions::new()
+    let file = OpenOptions::new()
 	.write(true)
 	.create(true)
 	.open(filename)
 	.context(OpenFileErr { filename: filename.to_path_buf() })?;
+    let mut file = BufWriter::new(file);
 
     let preamble = fs::read(LATEX_PREAMBLE)
 	.context(OpenFileErr {filename: filename.to_path_buf()})?;

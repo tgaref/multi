@@ -4,7 +4,7 @@ use serde_json;
 
 use std::fmt::Display;
 use std::fs::{self, OpenOptions};
-use std::io::{Write};
+use std::io::{Write, BufWriter};
 use std::path::{Path, PathBuf};
 use std::collections::HashMap;
 
