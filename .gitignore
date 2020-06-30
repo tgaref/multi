@@ -1,11 +1,5 @@
 /target
 /Cargo.lock
-/Cargo.toml~
+/*.*~
 /example/
-/examProfile.json~
-/src/create.rs~
-*.json
-/src/command.rs~
-/src/errors.rs~
-/src/latex.rs~
-/src/utilities.rs~
+/src/*.*~

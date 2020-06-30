@@ -1,8 +1,0 @@
-use std::io;
-use std::fs;
-use multi::create_profile;
-
-fn main() -> io::Result<()> {
-    create_profile("/home/tgaref/programming/rust/multi/example/questions.json")
-}
-
