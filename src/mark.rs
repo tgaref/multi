@@ -27,19 +27,34 @@ where
     let s = fs::read_to_string(MARK_PROFILE_JSON)
 	.context(OpenFileErr {filename: PathBuf::from(MARK_PROFILE_JSON)})?;
     let marks_map: MarkProfile = serde_json::from_str(&s)
-	.expect(&format!("File {} is not in valid json format", CORRECT_ANSWERS_JSON));
+	.expect(&format!("File {} is not in valid json format", MARK_PROFILE_JSON));
 
     let mut wrt = Writer::from_path(RESULTS_CSV)
 	.context(CsvWriterErr { filename: PathBuf::from(RESULTS_CSV)})?;
-    
+
+    let s = fs::read_to_string(EXAM_PROFILE_JSON)
+	.context(OpenFileErr {filename: PathBuf::from(EXAM_PROFILE_JSON)})?;
+    let exam_profile: ExamProfile = serde_json::from_str(&s)
+	.expect(&format!("File {} is not in valid json format", EXAM_PROFILE_JSON));
+
+    let mut total = 0;
+    for grp in exam_profile.profile {
+	total += grp.num;
+    }
+        
     for record in rdr.records() {
 	let mut record = record.unwrap();
 	record.trim();
 	let row: Row = record.deserialize(None)
 	    .context(CsvDeserializeErr { filename: filename.to_path_buf() })?;
-	let correct = &correct_answers_map[&row.serial];
-	ensure!(row.answer.len() == marks_map.len(), WrongNumberOfAnswers {filename: filename.to_path_buf(), am: row.am});
+	let correct: &Vec<(usize, String)> = &correct_answers_map[&row.serial];
+
+	println!("row: {:?}", row);
+	
 	let mut mark: f64 = 0.0;
+	
+	ensure!(row.answer.len() == total, WrongNumberOfAnswers {filename: filename.to_path_buf(), am: row.am});
+
 	let mut correct_string = String::new();
 	for (a, (b, grp)) in row.answer.chars().zip(correct) {
 	    if a == '-' || a == 'x' { continue };
