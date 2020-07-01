@@ -55,9 +55,9 @@ where
 
 	let mut correct_string = String::new();
 	for (a, (b, grp)) in row.answer.chars().zip(correct) {
-	    if a == '-' || a == 'x' { continue };
 	    if let Some(b) = std::char::from_digit(*b as u32,10) {
 		correct_string.push(b);
+		if a == '-' || a == 'x' { continue };		
 		if a == b {
 		    mark += marks_map[grp].correct_mark;
 		} else {
