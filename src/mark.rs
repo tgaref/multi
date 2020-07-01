@@ -49,8 +49,6 @@ where
 	    .context(CsvDeserializeErr { filename: filename.to_path_buf() })?;
 	let correct: &Vec<(usize, String)> = &correct_answers_map[&row.serial];
 
-	println!("row: {:?}", row);
-	
 	let mut mark: f64 = 0.0;
 	
 	ensure!(row.answer.len() == total, WrongNumberOfAnswers {filename: filename.to_path_buf(), am: row.am});
