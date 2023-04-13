@@ -1,0 +1,22 @@
+{
+  "Q3": {
+    "correct_mark": 1.0,
+    "wrong_mark": -0.25
+  },
+  "Q4": {
+    "correct_mark": 1.0,
+    "wrong_mark": -0.25
+  },
+  "Q1": {
+    "correct_mark": 1.0,
+    "wrong_mark": -0.25
+  },
+  "Q5": {
+    "correct_mark": 1.0,
+    "wrong_mark": -0.25
+  },
+  "Q2": {
+    "correct_mark": 1.0,
+    "wrong_mark": -0.25
+  }
+}

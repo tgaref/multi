@@ -1,30 +1,29 @@
 extern crate serde;
-use serde::{Serialize, Deserialize};
-use serde_json;
+use serde::{Deserialize, Serialize};
 
+use std::collections::HashMap;
 use std::fmt::Display;
 use std::fs::{self, OpenOptions};
-use std::io::{Write, BufWriter};
+use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
-use std::collections::HashMap;
 
 extern crate csv;
-use csv::{Writer, ReaderBuilder};
+use csv::{ReaderBuilder, Writer};
 
 extern crate snafu;
 use snafu::{ensure, ResultExt, Snafu};
 
 pub mod command;
-pub mod setup;
 pub mod create;
-pub mod mark;
 pub mod latex;
+pub mod mark;
+pub mod setup;
 pub mod utilities;
 
-pub use command::{Config, parse_arguments};
-pub use setup::create_profile;
+pub use command::{parse_arguments, Config};
 pub use create::create_papers;
 pub use mark::mark;
+pub use setup::create_profile;
 pub use utilities::backup;
 
 // Error types
@@ -66,16 +65,12 @@ pub enum Error {
     },
 
     #[snafu(display("Number of answers of AM: {} in file {} is wrong", am, filename.display()))]
-    WrongNumberOfAnswers {
-	filename: PathBuf,
-	am: usize
-    },
-        #[snafu(display("Could not save file {}: {}", filename.display(), source))]
+    WrongNumberOfAnswers { filename: PathBuf, am: usize },
+    #[snafu(display("Could not save file {}: {}", filename.display(), source))]
     CopyFileErr {
         filename: PathBuf,
         source: std::io::Error,
     },
-
 }
 
 // Structs for building an exam
@@ -83,48 +78,48 @@ pub enum Error {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Answer {
     pub ans: String,
-    pub correct: bool
+    pub correct: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Question {
     pub group: String,
     pub statement: String,
-    pub answers: Vec<Answer>
+    pub answers: Vec<Answer>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Exam {
     pub name: String,
     pub footer: String,
-    pub questions: Vec<Question>
+    pub questions: Vec<Question>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ExamGroupProfile {
     pub group: String,
     pub num: usize,
-    pub save_space: bool
+    pub save_space: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ExamProfile {
     pub total: usize,
-    pub profile: Vec<ExamGroupProfile>
+    pub profile: Vec<ExamGroupProfile>,
 }
 
 type MarkProfile = HashMap<String, Marks>;
-    
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Paper {
     serial: usize,
-    questions: Vec<Question>
+    questions: Vec<Question>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Marks {
     correct_mark: f64,
-    wrong_mark: f64
+    wrong_mark: f64,
 }
 
 const EXAM_PROFILE_JSON: &str = "examProfile.json";
